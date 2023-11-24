@@ -1,11 +1,31 @@
 from collections import Counter
+import math
+
+
 def calculate_manhattan_distance(point1, point2):
+    print('----')
     print(point1)
     print(point2)
+    print('----')
     dist = 0
     for i in range (len(point1)):
         dist += abs(point1[i] - point2[i])
     print("Distance=",dist)
+    return dist
+
+def calculate_euclidean_distance(point1, point2):
+    print('----')
+    print(point1)
+    print(point2)
+    print('----')
+
+    dist = 0
+    for i in range(len(point1)):
+        dist += (point1[i] - point2[i]) ** 2
+    dist = math.sqrt(dist)
+
+    print("Distance=",dist)
+    
     return dist
 
 
@@ -68,7 +88,7 @@ class KNeighborsClassifier():
         for i in range(X_test_length):
             for j in range(X_train_length):
                 if self.metric == 'manhattan':
-                    dist[i][j] = calculate_manhattan_distance(X_test[i], self.X_train[j])
+                    dist[i][j] = calculate_euclidean_distance(X_test[i], self.X_train[j])
         return dist
 
 
