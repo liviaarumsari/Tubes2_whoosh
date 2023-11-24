@@ -1,5 +1,5 @@
 class NaiveBayesClassifier():
-    def __init__(self, alpha, ):
+    def __init__(self, alpha):
         self.numerical_columns = []
         self.categorical_columns = []
         self.x_train = []
@@ -9,13 +9,13 @@ class NaiveBayesClassifier():
     def fit(self, x_train, y_train):
         pass
 
-    def predict(self, X_test):
+    def predict(self, x_test):
         pass
 
-    def GaussianProbability(self, x_test, y_test):
+    def GaussianProbability(self, x_test):
         pass
 
-    def CategoricalProbability(self, x_test, y_test):
+    def CategoricalProbability(self, x_test):
         pass
 
 
