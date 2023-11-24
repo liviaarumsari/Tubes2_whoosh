@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import math
 
 class NaiveBayesNumerical():
@@ -56,9 +57,9 @@ class NaiveBayesCategorical():
         self.target_probs = {}
         self.conditional_probs = []
 
-    def fit(self, categorical_columns, y_train):
-        self.y_train = y_train
-        self.categorical_columns = categorical_columns
+    def fit(self, categorical_columns: pd.DataFrame, y_train: pd.DataFrame) -> None:
+        self.y_train = y_train.values
+        self.categorical_columns = categorical_columns.values.T
         
         total_count = len(self.y_train)
 
@@ -75,11 +76,11 @@ class NaiveBayesCategorical():
                     cond_probs[f'{value1}-{value2}'] = (count_value1_value2 + 1) / (count_value2 + (1 * len(np.unique(column))))
             self.conditional_probs.append(cond_probs)
     
-    def predict_proba(self, x_test):
+    def predict_proba(self, x_test: np.ndarray) -> list:
         predicts = []
         for row in x_test:
             row_probabilities = []
-            # iterate sorted unique value of target column
+            # Iterate sorted unique value of target column
             for target in np.unique(self.y_train):
                 prior_prob = self.target_probs[target]
                 for i in range(len(x_test[0])):
