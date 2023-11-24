@@ -34,6 +34,7 @@ class NaiveBayesClassifier():
             target_given_all_probabilities = self.target_probs[target_value]
             for col, x_train_values in enumerate(self.numerical_columns):
                 indices = np.where(y_train_np == target_value)
+                indices = [index for index,value in enumerate(self.y_train) if value == target_value]
                 x_train_values = np.array(x_train_values)[indices]
 
                 var = np.var(x_train_values)
