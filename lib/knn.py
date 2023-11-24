@@ -14,6 +14,7 @@ def calculate_manhattan_distance(point1, point2):
         dist += abs(point1[i] - point2[i])
     return dist
 
+
 def calculate_euclidean_distance(point1, point2):
     """
      Function to calculate euclidean distance between point 1 and point 2 of dim len(point1)
