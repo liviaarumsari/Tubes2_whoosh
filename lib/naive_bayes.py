@@ -58,7 +58,7 @@ class NaiveBayesClassifier():
 
         for value in np.unique(self.y_train):
             count_value = np.sum(self.y_train == value)
-            self.target_probs[value] = (count_value + self.alpha) / (total_count + (len(np.unique(self.y_train)) * self.alpha))
+            self.target_probs[value] = (count_value) / (total_count + len(np.unique(self.y_train)))
 
         for column in self.categorical_columns:
             cond_probs = dict()
@@ -69,10 +69,33 @@ class NaiveBayesClassifier():
                     cond_probs[f'{value1}-{value2}'] = (count_value1_value2 + self.alpha) / (count_value2 + (self.alpha * len(np.unique(column))))
             self.categorical_conditional_probs.append(cond_probs)
 
+    def predict_proba_categorical(self, x_test):
+        predicts = []
+        for row in x_test:
+            row_probabilities = []
+            # iterate sorted unique value of target column
+            for target in np.unique(self.y_train):
+                prior_prob = self.target_probs[target]
+                for i in range(len(x_test)):
+                    cond_prob_key = f'{row[i]}-{target}'
+                    cond_prob = self.categorical_conditional_probs[i][cond_prob_key]
+                    
+                    prior_prob *= cond_prob
+                
+                row_probabilities.append(prior_prob)
 
+            sum_prob = np.sum(row_probabilities)
+            normalized_prob = row_probabilities / sum_prob
+            predicts.append(normalized_prob.tolist())
+
+        return predicts
+
+
+                
 
 if __name__ == "__main__":
     nv = NaiveBayesClassifier(1)
     nv.fit([], [[0,0,0,1],[1,1,1,0],[1,1,0,0]], [1,1,0,0])
     nv.CategoricalProbability()
+    print(nv.predict_proba_categorical([[0,0,0,1],[1,1,1,0],[1,1,0,0]]))
 
