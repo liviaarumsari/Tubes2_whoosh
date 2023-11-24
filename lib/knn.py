@@ -1,11 +1,10 @@
 from collections import Counter
+
+
 def calculate_manhattan_distance(point1, point2):
-    print(point1)
-    print(point2)
     dist = 0
-    for i in range (len(point1)):
+    for i in range(len(point1)):
         dist += abs(point1[i] - point2[i])
-    print("Distance=",dist)
     return dist
 
 
@@ -27,14 +26,15 @@ class KNeighborsClassifier():
         self.y_train = y_train
 
     def predict(self, X_test):
-        nearest_neighbors = self.get_nearest_neighbors(X_test) # get the nearest neighbors in Xs for each X_test
+        nearest_neighbors = self.get_nearest_neighbors(X_test)  # get the nearest neighbors in Xs for each X_test
         nearest_neighbors_y = self.map_nearest_neighbors_to_target(nearest_neighbors)
         prediction = []
+
         for neighbors in nearest_neighbors_y:
             neighbor_counts = Counter(neighbors)
             most_common_neighbor, count = neighbor_counts.most_common(1)[0]
             prediction.append(most_common_neighbor)
-        print(prediction)
+        return prediction
 
     def map_nearest_neighbors_to_target(self, nearest_neighbors):
         nearest_neighbors_y = []
@@ -64,12 +64,16 @@ class KNeighborsClassifier():
         X_train_length = len(self.X_train)
         X_test_length = len(X_test)
         dist = [[0 for _ in range(X_train_length)] for _ in range(X_test_length)]
-        print(X_test)
         for i in range(X_test_length):
             for j in range(X_train_length):
                 if self.metric == 'manhattan':
                     dist[i][j] = calculate_manhattan_distance(X_test[i], self.X_train[j])
         return dist
+
+    def score(self, X_test, y_test):
+        prediction = self.predict(X_test)
+        correct_cnt = sum(pred == actual for pred, actual in zip(prediction, y_test))
+        return correct_cnt / len(y_test)
 
 
 if __name__ == "__main__":
