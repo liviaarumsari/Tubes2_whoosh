@@ -1,4 +1,4 @@
-from collections import Counter
+from collections import defaultdict
 import math
 
 
@@ -31,11 +31,12 @@ def calculate_euclidean_distance(point1, point2):
 
 
 class KNeighborsClassifier():
-    def __init__(self, n_neighbors, metric):
+    def __init__(self, n_neighbors, metric, weight='uniform'):
         self.n_neighbors = n_neighbors
         self.metric = metric
         self.X_train = []
         self.y_train = []
+        self.weight = weight
 
     def fit(self, X_train, y_train):
         """
@@ -53,13 +54,17 @@ class KNeighborsClassifier():
         :return prediction for each X in X_test:
         """
         nearest_neighbors = self.get_nearest_neighbors(X_test)  # get the nearest neighbors in Xs for each X_test
-        nearest_neighbors_y = self.map_nearest_neighbors_to_target(nearest_neighbors)
         prediction = []
-
-        for neighbors in nearest_neighbors_y:
-            neighbor_counts = Counter(neighbors)
-            most_common_neighbor, count = neighbor_counts.most_common(1)[0]
-            prediction.append(most_common_neighbor)
+        print(self.weight)
+        for neighbors in nearest_neighbors:
+            prediction_map = defaultdict(int)
+            for neighbor_value, neighbor_key in neighbors:
+                if self.weight == 'uniform':
+                    prediction_map[neighbor_key] += neighbor_value
+                elif self.weight == 'distance':
+                    prediction_map[neighbor_key] += (1 if neighbor_value == 0 else 1/neighbor_value)
+            max_key = max(prediction_map, key=prediction_map.get)
+            prediction.append(max_key)
         return prediction
 
     def map_nearest_neighbors_to_target(self, nearest_neighbors):
@@ -83,18 +88,8 @@ class KNeighborsClassifier():
         :return The index of nearest neighbors for each X in X_test:
         """
         dist = self.calculate_test_to_train_distance(X_test)
-        sorted_dist_with_indices = [
-            sorted(enumerate(sublist), key=lambda x: x[1], reverse=False) for sublist in dist
-        ]
-        nearest_neighbors_with_indices = [
-            sublist[:self.n_neighbors] for sublist in sorted_dist_with_indices
-        ]
-
-        # Keeping only the original indices
-        nearest_neighbors = [
-            [index for index, _ in sublist] for sublist in nearest_neighbors_with_indices
-        ]
-        return nearest_neighbors
+        sorted_dist = [sorted(sublist, key=lambda x: x[0])[:self.n_neighbors] for sublist in dist]
+        return sorted_dist
 
     def calculate_test_to_train_distance(self, X_test):
         """
@@ -108,9 +103,9 @@ class KNeighborsClassifier():
         for i in range(X_test_length):
             for j in range(X_train_length):
                 if self.metric == 'manhattan':
-                    dist[i][j] = calculate_manhattan_distance(X_test[i], self.X_train[j])
+                    dist[i][j] = (calculate_manhattan_distance(X_test[i], self.X_train[j]), self.y_train[j])
                 elif self.metric == 'euclidean':
-                    dist[i][j] = calculate_euclidean_distance(X_test[i], self.X_train[j])
+                    dist[i][j] = (calculate_euclidean_distance(X_test[i], self.X_train[j]), self.y_train[j])
         return dist
 
     def score(self, X_test, y_test):
@@ -129,4 +124,4 @@ class KNeighborsClassifier():
 if __name__ == "__main__":
     KNN_manhattan = KNeighborsClassifier(1, "manhattan")
     KNN_manhattan.fit([[2, 3], [3, 4], [1, 2], [6, 7], [9, 0]], [2, 2, 3, 3, 4])
-    KNN_manhattan.predict([[2, 3], [3, 4], [1, 2], [6, 7], [9, 0]])
+    print(KNN_manhattan.predict([[2, 3], [3, 4], [1, 2], [6, 7], [9, 0]]))
