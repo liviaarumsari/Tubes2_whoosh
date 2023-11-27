@@ -3,30 +3,47 @@ import pandas as pd
 import math
 
 
-class NaiveBayesNumerical():
+class NaiveBayesGaussian():
     def __init__(self) -> None:
         self.numerical_columns = []
         self.y_train = []
         self.target_probs = {}
         self.target_values = []
 
-    def fit(self, numerical_columns, y_train):
-        self.y_train = y_train
-        self.numerical_columns = numerical_columns
+    def fit(self, numerical_columns: pd.DataFrame, y_train) -> None:
+        """
+        Save numerical target training data into class, count target probabilities
+        :param numerical_columns:
+        :param y_train:
+        :return:
+        """
+        self.y_train = y_train.values
+        self.numerical_columns = numerical_columns.values.T
 
         total_count = len(self.y_train)
+
         for value in np.unique(self.y_train):
             count_value = np.sum(self.y_train == value)
-            self.target_probs[value] = (count_value) / (total_count + len(np.unique(self.y_train)))
+            self.target_probs[value] = count_value / (total_count + len(np.unique(self.y_train)))
 
-    def predictProbaNumerical(self, x_test_numerical: list[list[float]]):
+    def predict_proba(self, x_test_numerical: np.ndarray) -> list:
+        """
+        Return list of normalized probability of x_test_numerical to target classification
+        :param x_test_numerical:
+        :return:
+        """
         res = []
         for x_test_row in x_test_numerical:
-            numerical_probabilities = self.GaussianProbability(x_test_row)
+            numerical_probabilities = self.gaussian_proba(x_test_row)
             res.append(numerical_probabilities)
         return res
 
-    def GaussianProbability(self, x_numerical_test: list[float]):
+    def gaussian_proba(self, x_numerical_test):
+        """
+        Return list of gaussian probability of x_numerical_test
+        :param x_numerical_test:
+        :return:
+        """
         y_train_np = np.array(self.y_train)
         target_values = np.unique(y_train_np)
         target_probabilities = []
@@ -58,7 +75,7 @@ class NaiveBayesCategorical():
         self.target_probs = {}
         self.conditional_probs = []
 
-    def fit(self, categorical_columns: pd.DataFrame, y_train: pd.DataFrame) -> None:
+    def fit(self, categorical_columns: pd.DataFrame, y_train) -> None:
         """
         Save categorical target training data into class, count target and conditional probabilities
         :param categorical_columns:
@@ -113,5 +130,5 @@ class NaiveBayesCategorical():
 # Function test with dummy data
 if __name__ == "__main__":
     nv = NaiveBayesCategorical()
-    nv.fit([[0, 0, 0, 1], [1, 1, 1, 0], [1, 1, 0, 0]], [1, 1, 0, 0])
-    print(nv.predict_proba([[0, 0, 0, 1], [1, 1, 1, 0], [1, 1, 0, 0]]))
+    nv.fit(pd.DataFrame([[0, 0, 0, 1], [1, 1, 1, 0], [1, 1, 0, 0]]), pd.DataFrame([1, 1, 0, 0]))
+    print(nv.predict_proba(np.array([[0, 0, 0, 1], [1, 1, 1, 0], [1, 1, 0, 0]])))
