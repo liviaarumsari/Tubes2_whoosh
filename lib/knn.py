@@ -53,7 +53,7 @@ class KNeighborsClassifier():
         :param X_test:
         :return prediction for each X in X_test:
         """
-        nearest_neighbors = self.get_nearest_neighbors(X_test)  # get the nearest neighbors in Xs for each X_test
+        nearest_neighbors = self.__get_nearest_neighbors(X_test)  # get the nearest neighbors in Xs for each X_test
         prediction = []
         print(self.weight)
         for neighbors in nearest_neighbors:
@@ -67,35 +67,21 @@ class KNeighborsClassifier():
             prediction.append(max_key)
         return prediction
 
-    def map_nearest_neighbors_to_target(self, nearest_neighbors):
-        """
-        Get the target for each nearest neighbors(List of X indexes of nearest neighbors)
-        :param nearest_neighbors:
-        :return:
-        """
-        nearest_neighbors_y = []
-        for neighbours in nearest_neighbors:
-            curr_y = []
-            for neighbour in neighbours:
-                curr_y.append(self.y_train[neighbour])
-            nearest_neighbors_y.append(curr_y)
-        return nearest_neighbors_y
-
-    def get_nearest_neighbors(self, X_test):
+    def __get_nearest_neighbors(self, X_test):
         """
         Find the nearest neighbors for each X in X_test
         :param X_test:
-        :return The index of nearest neighbors for each X in X_test:
+        :return The nearest neighbors with format list of (dist value, y_train) for each X in X_test:
         """
-        dist = self.calculate_test_to_train_distance(X_test)
+        dist = self.__calculate_test_to_train_distance(X_test)
         sorted_dist = [sorted(sublist, key=lambda x: x[0])[:self.n_neighbors] for sublist in dist]
         return sorted_dist
 
-    def calculate_test_to_train_distance(self, X_test):
+    def __calculate_test_to_train_distance(self, X_test):
         """
         Find the distance for each X in X_test to each points in X_train
         :param X_test:
-        :return:
+        :return the list of tuple (distance, y_train):
         """
         X_train_length = len(self.X_train)
         X_test_length = len(X_test)
