@@ -55,17 +55,41 @@ class KNeighborsClassifier():
         """
         nearest_neighbors = self.__get_nearest_neighbors(X_test)  # get the nearest neighbors in Xs for each X_test
         prediction = []
-        print(self.weight)
         for neighbors in nearest_neighbors:
             prediction_map = defaultdict(int)
             for neighbor_value, neighbor_key in neighbors:
                 if self.weight == 'uniform':
                     prediction_map[neighbor_key] += neighbor_value
                 elif self.weight == 'distance':
-                    prediction_map[neighbor_key] += (1 if neighbor_value == 0 else 1/neighbor_value)
+                    prediction_map[neighbor_key] += (1 if neighbor_value == 0 else 1 / neighbor_value)
             max_key = max(prediction_map, key=prediction_map.get)
             prediction.append(max_key)
         return prediction
+
+    def predict_proba(self, X_test):
+        """
+        Function to calculate the probability of all categories in the target column for each X in X_test
+        :param X_test:
+        :return:
+        """
+        nearest_neighbors = self.__get_nearest_neighbors(X_test)  # get the nearest neighbors in Xs for each X_test
+        prediction = []
+        for neighbors in nearest_neighbors:
+            prediction_map = defaultdict(int)
+            for neighbor_value, neighbor_key in neighbors:
+                if self.weight == 'uniform':
+                    prediction_map[neighbor_key] += neighbor_value
+                elif self.weight == 'distance':
+                    prediction_map[neighbor_key] += (1 if neighbor_value == 0 else 1 / neighbor_value)
+            prediction_list = [0 for i in range(len(self.__get_possible_targets()))]
+            sum_values = sum(prediction_map.values())
+            for key in prediction_map.keys():
+                prediction_list[key] = prediction_map[key] / sum_values
+            prediction.append(prediction_list)
+        return prediction
+
+    def __get_possible_targets(self):
+        return set(self.y_train)
 
     def __get_nearest_neighbors(self, X_test):
         """
