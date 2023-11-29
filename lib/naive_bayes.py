@@ -34,11 +34,11 @@ class NaiveBayesGaussian():
         """
         res = []
         for x_test_row in x_test_numerical:
-            numerical_probabilities = self.gaussian_proba(x_test_row)
+            numerical_probabilities = self.__gaussian_proba(x_test_row)
             res.append(numerical_probabilities)
         return res
 
-    def gaussian_proba(self, x_numerical_test):
+    def __gaussian_proba(self, x_numerical_test):
         """
         Return list of gaussian probability of x_numerical_test
         :param x_numerical_test:
